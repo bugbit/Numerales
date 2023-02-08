@@ -1,5 +1,5 @@
 using Numerales;
-
+using System.Diagnostics;
 using static Numerales.Numerales;
 
 namespace Numerales.Tests;
@@ -11,5 +11,7 @@ public class UnitTest1
     public void TestMethod1()
     {
         var str = ToCardinal(1, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "uno");
     }
 }
