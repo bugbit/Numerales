@@ -28,6 +28,12 @@ public static class Numerales
         "cero", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"
     });
 
+    private static readonly Lazy<string[]> centenasStr = new(() =>
+    new[]
+    {
+        "","ciento", "doscient", "trescient", "cuatrocient", "quinient", "seiscient", "setecient", "ochocient", "novecient"
+    });
+
 
     //private static readonly Lazy<uint[]> pows1000Int = new(() => new[]
     //{
@@ -118,12 +124,20 @@ public static class Numerales
         if (negative)
             sb.Append("menos ");
 
-        AddUnidades(sb, periodos.First(), 1, opciones);
+        AddClase(sb, periodos.First(), 1, opciones);
 
         return sb.ToString();
     }
 
-    private static void AddUnidades(StringBuilder sb, uint unidad, int nperiodo, OpcionesGramatica opciones)
+    private static void AddClase(StringBuilder sb, uint uniDecCen, int nperiodo, OpcionesGramatica opciones)
+    {
+        if (uniDecCen >= 100)
+            AddCentenas(sb, uniDecCen, nperiodo, opciones);
+        else
+            AddUnidadesYDecenas(sb, uniDecCen, nperiodo, opciones);
+    }
+
+    private static void AddUnidadesYDecenas(StringBuilder sb, uint unidad, int nperiodo, OpcionesGramatica opciones)
     {
         if (unidad == 0 && nperiodo > 1)
             return;
@@ -145,20 +159,55 @@ public static class Numerales
             if (decenas.Remainder != 0)
             {
                 sb.Append(" y ");
-                AddUnidades(sb, decenas.Remainder, nperiodo, opciones);
+                AddUnidadesYDecenas(sb, decenas.Remainder, nperiodo, opciones);
             }
         }
     }
 
-    private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones)
+    private static void AddCentenas(StringBuilder sb, uint numero, int nperiodo, OpcionesGramatica opciones)
+    {
+        switch (numero)
+        {
+            case 0:
+                break;
+            case 100:
+                // La centena se expresa como «cien» si va sola y como «ciento» si va acompañada de decenas o unidades
+                sb.Append("cien");
+                break;
+            default:
+                if (numero > 999)
+                    return;
+
+                var centenas = Math.DivRem(numero, 100);
+
+                sb.Append(centenasStr.Value[centenas.Quotient]);
+                // La centena se expresa como «ciento» si va acompañada de decenas o unidades
+                // Para expresar varias centenas, se usa el plural «cientos», uniéndose esta palabra al número que está multiplicando a «cien», aunque pueden surgir irregularidades en dicho número o en la palabra entera.
+                if (centenas.Quotient > 1)
+                    AddGenero(sb, opciones, true);
+                if (centenas.Remainder > 0)
+                {
+                    sb.Append(' ');
+                    AddUnidadesYDecenas(sb, centenas.Remainder, nperiodo, opciones);
+                }
+                break;
+        }
+
+    }
+
+    private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones, bool plurar = false)
     {
         switch (opciones)
         {
             case OpcionesGramatica.Masculino:
-                sb.Append('o');
+                sb.Append(!plurar ? "o" : "os");
                 break;
             case OpcionesGramatica.Fenemino:
-                sb.Append('a');
+                sb.Append(!plurar ? "a" : "as");
+                break;
+            case OpcionesGramatica.Apocope:
+                if (plurar)
+                    sb.Append("os");
                 break;
         }
     }

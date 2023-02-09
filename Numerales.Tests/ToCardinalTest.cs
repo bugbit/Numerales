@@ -1,4 +1,4 @@
-// Copyright © 2023 Oscar Hernandez Baño. All rights reserved.
+// Copyright ï¿½ 2023 Oscar Hernandez Baï¿½o. All rights reserved.
 // Use of this source code is governed by a GLP3.0 license that can be found in the LICENSE file.
 // This file is part of Algebra.
 
@@ -30,8 +30,8 @@ public class ToCardinalTest
     {
         string[] decenas ={
             "cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez", "once", "doce",
-        "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno",
-        "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"
+        "trece", "catorce", "quince", "diecisï¿½is", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno",
+        "veintidï¿½s", "veintitrï¿½s", "veinticuatro", "veinticinco", "veintisï¿½is", "veintisiete", "veintiocho", "veintinueve"
         };
 
         for (var i = 0; i < decenas.Length; i++)
@@ -76,5 +76,40 @@ public class ToCardinalTest
 
             Debug.Assert(str == decenas[i], str);
         }
+    }
+
+    [TestMethod]
+    public void TestCentenas()
+    {
+        var str = ToCardinal(100, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "cien");
+
+        str = ToCardinal(100, OpcionesGramatica.Fenemino);
+        Debug.Assert(str == "cien");
+
+        str = ToCardinal(101, OpcionesGramatica.Fenemino);
+        Debug.Assert(str == "ciento una");
+
+        str = ToCardinal(101, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "ciento uno");
+
+        str = ToCardinal(102, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "ciento dos");
+
+        str = ToCardinal(123, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "ciento veintitrÃ©s");
+
+        str = ToCardinal(153, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "ciento cincuenta y tres");
+
+        str = ToCardinal(200, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "doscientos");
+
+        str = ToCardinal(200, OpcionesGramatica.Masculino);
+        Debug.Assert(str == "doscientos");
+
+        str = ToCardinal(999, OpcionesGramatica.Fenemino);
+        Debug.Assert(str == "novecientas noventa y nueve");
     }
 }
