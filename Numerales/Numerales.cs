@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿// Copyright © 2023 Oscar Hernandez Baño. All rights reserved.
+// Use of this source code is governed by a GLP3.0 license that can be found in the LICENSE file.
+// This file is part of Algebra.
+
+using System.Text;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -17,6 +21,13 @@ public static class Numerales
         "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno",
         "veintidós", "veintitrés", "veinticuatro", "veinticinco", "veintiséis", "veintisiete", "veintiocho", "veintinueve"
     });
+
+    private static readonly Lazy<string[]> decenasStr = new(() =>
+    new[]
+    {
+        "cero", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"
+    });
+
 
     //private static readonly Lazy<uint[]> pows1000Int = new(() => new[]
     //{
@@ -107,13 +118,16 @@ public static class Numerales
         if (negative)
             sb.Append("menos ");
 
-        AddUnidades(sb, periodos.First(), opciones);
+        AddUnidades(sb, periodos.First(), 1, opciones);
 
         return sb.ToString();
     }
 
-    private static void AddUnidades(StringBuilder sb, uint unidad, OpcionesGramatica opciones)
+    private static void AddUnidades(StringBuilder sb, uint unidad, int nperiodo, OpcionesGramatica opciones)
     {
+        if (unidad == 0 && nperiodo > 1)
+            return;
+
         var unidadesStrTmp = unidadesStr.Value;
 
         if (unidad < unidadesStrTmp.Length)
@@ -121,6 +135,18 @@ public static class Numerales
             sb.Append(unidadesStrTmp[unidad]);
             if (unidad == 1)
                 AddGenero(sb, opciones);
+        }
+        else if (unidad < 100)
+        {
+            var decenas = Math.DivRem(unidad, 10);
+
+            sb.Append(decenasStr.Value[decenas.Quotient]);
+
+            if (decenas.Remainder != 0)
+            {
+                sb.Append(" y ");
+                AddUnidades(sb, decenas.Remainder, nperiodo, opciones);
+            }
         }
     }
 
@@ -132,7 +158,7 @@ public static class Numerales
                 sb.Append('o');
                 break;
             case OpcionesGramatica.Fenemino:
-                sb.Append('o');
+                sb.Append('a');
                 break;
         }
     }
