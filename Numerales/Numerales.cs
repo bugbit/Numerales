@@ -124,9 +124,59 @@ public static class Numerales
         if (negative)
             sb.Append("menos ");
 
-        AddClase(sb, periodos.First(), 1, opciones);
+        AddPeriodo(sb, 1, periodos.First(), opciones);
 
         return sb.ToString();
+    }
+
+    private static void AddPeriodo(StringBuilder sb, int nperiodo, uint uniDecCenMil, OpcionesGramatica opciones)
+    {
+        // es zero
+        if (uniDecCenMil == 0)
+        {
+            // solo si es el primer periodo
+            if (nperiodo == 1)
+                sb.Append(unidadesStr.Value.First());
+        }
+        else
+        {
+            // Los múltiplos de un millón siempre son masculinos: se dice «quinientos millones de personas»
+            var op = nperiodo > 1 ? OpcionesGramatica.Apocope : opciones;
+            var espacio = false;
+
+            if (uniDecCenMil > 999)
+            {
+                var millares = Math.DivRem(uniDecCenMil, 1000);
+
+                // La norma general es simplemente escribir los millares, seguidos de «mil», más el número de tres cifras 
+                // que siga, excepto si la cifra de millares es 1. En este caso se omiten los millares, 
+                //escribiendo solo "mil" en lugar de "un mil"
+                if (millares.Quotient > 1)
+                {
+                    AddClase(sb, millares.Quotient, nperiodo, (op == OpcionesGramatica.Masculino) ? OpcionesGramatica.Apocope : op);
+                    espacio = true;
+                }
+                AddEspacioIfNecesario(sb, ref espacio);
+                sb.Append("mil");
+                espacio = true;
+
+                uniDecCenMil = millares.Remainder;
+            }
+            if (uniDecCenMil > 0)
+            {
+                AddEspacioIfNecesario(sb, ref espacio);
+                AddClase(sb, uniDecCenMil, nperiodo, op);
+            }
+        }
+    }
+
+    private static void AddEspacioIfNecesario(StringBuilder sb, ref bool espacio)
+    {
+        if (espacio)
+        {
+            sb.Append(' ');
+            espacio = false;
+        }
     }
 
     private static void AddClase(StringBuilder sb, uint uniDecCen, int nperiodo, OpcionesGramatica opciones)
@@ -139,16 +189,20 @@ public static class Numerales
 
     private static void AddUnidadesYDecenas(StringBuilder sb, uint unidad, int nperiodo, OpcionesGramatica opciones)
     {
-        if (unidad == 0 && nperiodo > 1)
+        if (unidad == 0)
             return;
 
         var unidadesStrTmp = unidadesStr.Value;
 
-        if (unidad < unidadesStrTmp.Length)
+        if (unidad == 21 && opciones != OpcionesGramatica.Masculino)
+        {
+            sb.Append((opciones == OpcionesGramatica.Apocope) ? "veintiún" : "veintiuna");
+        }
+        else if (unidad < unidadesStrTmp.Length)
         {
             sb.Append(unidadesStrTmp[unidad]);
             if (unidad == 1)
-                AddGenero(sb, opciones);
+                AddGenero(sb, opciones, true, false);
         }
         else if (unidad < 100)
         {
@@ -184,7 +238,7 @@ public static class Numerales
                 // La centena se expresa como «ciento» si va acompañada de decenas o unidades
                 // Para expresar varias centenas, se usa el plural «cientos», uniéndose esta palabra al número que está multiplicando a «cien», aunque pueden surgir irregularidades en dicho número o en la palabra entera.
                 if (centenas.Quotient > 1)
-                    AddGenero(sb, opciones, true);
+                    AddGenero(sb, opciones, false, true);
                 if (centenas.Remainder > 0)
                 {
                     sb.Append(' ');
@@ -195,8 +249,14 @@ public static class Numerales
 
     }
 
-    private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones, bool plurar = false)
+    private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)
     {
+        if (!sePuedeApocopar)
+        {
+            if (opciones == OpcionesGramatica.Apocope)
+                opciones = OpcionesGramatica.Masculino;
+
+        }
         switch (opciones)
         {
             case OpcionesGramatica.Masculino:
@@ -204,10 +264,6 @@ public static class Numerales
                 break;
             case OpcionesGramatica.Fenemino:
                 sb.Append(!plurar ? "a" : "as");
-                break;
-            case OpcionesGramatica.Apocope:
-                if (plurar)
-                    sb.Append("os");
                 break;
         }
     }
