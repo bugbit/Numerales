@@ -26,3 +26,11 @@ Para expresar varias centenas, se usa el plural «cientos», uniéndose esta pal
 ### millares
 
  La norma general es simplemente escribir los millares, seguidos de «mil», más el número de tres cifras que siga, excepto si la cifra de millares es 1. En este caso se omiten los millares, escribiendo solo "mil" en lugar de "un mil"
+
+### Millones
+
+Los múltiplos de un millón siempre son masculinos: se dice «quinientos millones de personas» a pesar de que «persona» es femenino y «quinientos» pueda utilizarse en femenino. Sin embargo, se dice «quinientos millones quinientas mil personas».
+
+De nuevo, se debe separar la parte entera cada tres dígitos usando espacio duro en lugar de punto ‘.’.
+
+1.000.000 => un millon

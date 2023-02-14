@@ -34,6 +34,12 @@ public static class Numerales
         "","ciento", "doscient", "trescient", "cuatrocient", "quinient", "seiscient", "setecient", "ochocient", "novecient"
     });
 
+    private static readonly Lazy<string[]> millonesStr = new(() =>
+    new[]
+    {
+        "millon","billon"
+    });
+
 
     //private static readonly Lazy<uint[]> pows1000Int = new(() => new[]
     //{
@@ -86,26 +92,27 @@ public static class Numerales
         //}
     }
 
-    private static void AddPeriodos(List<uint> periodos, uint numero)
+    private static string ToCardinal(bool negative, uint numero, OpcionesGramatica opciones)
     {
+        // Hay que cambiar los sb por words y luego separalos por espacios
+        var words = new List<string>();
+        var sb = new StringBuilder();
+
+        if (negative)
+            AddNegative(sb);
+
         var part = numero / millonUInt;
 
         if (part > 0)
         {
-            periodos.Add(part);
+            //periodos.Add(part);
+            AddPeriodo(sb, 2, part, opciones);
             numero = numero % millonUInt;
         }
 
-        periodos.Add(numero);
-    }
+        AddPeriodo(sb, 1, numero, opciones);
 
-    private static string ToCardinal(bool negative, uint numero, OpcionesGramatica opciones)
-    {
-        var periodos = new List<uint>();
-
-        AddPeriodos(periodos, numero);
-
-        return ToCardinal(negative, periodos.Count, periodos, opciones);
+        return sb.ToString();
     }
 
     private static string ToCardinal(bool negative, ulong numero, OpcionesGramatica opciones)
@@ -127,6 +134,11 @@ public static class Numerales
         AddPeriodo(sb, 1, periodos.First(), opciones);
 
         return sb.ToString();
+    }
+
+    private static void AddNegative(StringBuilder sb)
+    {
+        sb.Append("menos ");
     }
 
     private static void AddPeriodo(StringBuilder sb, int nperiodo, uint uniDecCenMil, OpcionesGramatica opciones)
@@ -166,6 +178,12 @@ public static class Numerales
             {
                 AddEspacioIfNecesario(sb, ref espacio);
                 AddClase(sb, uniDecCenMil, nperiodo, op);
+            }
+
+            if (nperiodo >= 2)
+            {
+                AddEspacioIfNecesario(sb, ref espacio);
+                sb.Append(millonesStr.Value[nperiodo - 2]);
             }
         }
     }
@@ -246,7 +264,6 @@ public static class Numerales
                 }
                 break;
         }
-
     }
 
     private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)

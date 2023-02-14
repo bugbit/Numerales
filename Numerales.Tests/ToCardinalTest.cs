@@ -3,6 +3,7 @@
 // This file is part of Algebra.
 
 using System;
+using System.Globalization;
 using Humanizer;
 
 namespace Numerales.Tests;
@@ -10,6 +11,13 @@ namespace Numerales.Tests;
 [TestClass]
 public class ToCardinalTest
 {
+    [TestMethod]
+    public void TestNegative()
+    {
+        var str = ToCardinal(-1, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "menos uno", str);
+    }
     [TestMethod]
     public void TestUno()
     {
@@ -183,14 +191,16 @@ public class ToCardinalTest
     [TestMethod]
     public void TestCompareToHumanizer()
     {
+        var cultureInfo = CultureInfo.GetCultureInfo("es");
+
         for (int i = 0; i < 999999; i++)
         {
-            var strH = i.ToWords(GrammaticalGender.Masculine);
+            var strH = i.ToWords(GrammaticalGender.Masculine, cultureInfo);
             var strMy = ToCardinal(i, OpcionesGramatica.Masculino);
 
             Debug.Assert(strH == strMy, $"{i} = H'{strH}' My'{strMy}'");
 
-            strH = i.ToWords(GrammaticalGender.Feminine);
+            strH = i.ToWords(GrammaticalGender.Feminine, cultureInfo);
             strMy = ToCardinal(i, OpcionesGramatica.Fenemino);
 
             Debug.Assert(strH == strMy, $"Fem {i} = H'{strH}' My'{strMy}'");
