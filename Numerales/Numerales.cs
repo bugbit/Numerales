@@ -37,7 +37,7 @@ public static class Numerales
     private static readonly Lazy<string[]> millonesStr = new(() =>
     new[]
     {
-        "millon","billon"
+        "millón","billón"
     });
 
 
@@ -68,7 +68,7 @@ public static class Numerales
     }
     //public static string ToCardinal(BigInteger numero, OpcionesGramatica opciones)
     //{
-    //    var texto = new StringBuilder();
+    //    var texto = new Words();
 
     //    if (numero < BigInteger.Zero)
     //    {
@@ -94,25 +94,26 @@ public static class Numerales
 
     private static string ToCardinal(bool negative, uint numero, OpcionesGramatica opciones)
     {
-        // Hay que cambiar los sb por words y luego separalos por espacios
-        var words = new List<string>();
-        var sb = new StringBuilder();
+        var words = new Words();
 
-        if (negative)
-            AddNegative(sb);
-
-        var part = numero / millonUInt;
-
-        if (part > 0)
+        if (numero == 0)
+            AddZero(words);
+        else
         {
-            //periodos.Add(part);
-            AddPeriodo(sb, 2, part, opciones);
-            numero = numero % millonUInt;
+            AddIfNegative(negative, words);
+
+            var part = numero / millonUInt;
+
+            if (part > 0)
+            {
+                AddPeriodo(words, 2, part, opciones);
+                numero = numero % millonUInt;
+            }
+
+            AddPeriodo(words, 1, numero, opciones);
         }
 
-        AddPeriodo(sb, 1, numero, opciones);
-
-        return sb.ToString();
+        return words.ToString();
     }
 
     private static string ToCardinal(bool negative, ulong numero, OpcionesGramatica opciones)
@@ -124,88 +125,57 @@ public static class Numerales
         return string.Empty;
     }
 
-    private static string ToCardinal(bool negative, int numperiodos, IEnumerable<uint> periodos, OpcionesGramatica opciones)
+    private static void AddIfNegative(bool negative, Words words)
     {
-        var sb = new StringBuilder();
-
         if (negative)
-            sb.Append("menos ");
-
-        AddPeriodo(sb, 1, periodos.First(), opciones);
-
-        return sb.ToString();
+            AddNegative(words);
     }
 
-    private static void AddNegative(StringBuilder sb)
+    private static void AddZero(Words words) => words.AddWord("cero");
+
+    private static void AddNegative(Words words)
     {
-        sb.Append("menos ");
+        words.AddWord("menos");
     }
 
-    private static void AddPeriodo(StringBuilder sb, int nperiodo, uint uniDecCenMil, OpcionesGramatica opciones)
+    private static void AddPeriodo(Words words, int nperiodo, uint uniDecCenMil, OpcionesGramatica opciones)
     {
         // es zero
         if (uniDecCenMil == 0)
+            return;
+
+        // Los múltiplos de un millón siempre son masculinos: se dice «quinientos millones de personas»
+        var op = nperiodo > 1 ? OpcionesGramatica.Apocope : opciones;
+
+        if (uniDecCenMil > 999)
         {
-            // solo si es el primer periodo
-            if (nperiodo == 1)
-                sb.Append(unidadesStr.Value.First());
+            var millares = Math.DivRem(uniDecCenMil, 1000);
+
+            // La norma general es simplemente escribir los millares, seguidos de «mil», más el número de tres cifras 
+            // que siga, excepto si la cifra de millares es 1. En este caso se omiten los millares, 
+            //escribiendo solo "mil" en lugar de "un mil"
+            if (millares.Quotient > 1)
+                AddClase(words, millares.Quotient, nperiodo, (op == OpcionesGramatica.Masculino) ? OpcionesGramatica.Apocope : op);
+            words.AddWord("mil");
+
+            uniDecCenMil = millares.Remainder;
         }
-        else
-        {
-            // Los múltiplos de un millón siempre son masculinos: se dice «quinientos millones de personas»
-            var op = nperiodo > 1 ? OpcionesGramatica.Apocope : opciones;
-            var espacio = false;
+        if (uniDecCenMil > 0)
+            AddClase(words, uniDecCenMil, nperiodo, op);
 
-            if (uniDecCenMil > 999)
-            {
-                var millares = Math.DivRem(uniDecCenMil, 1000);
-
-                // La norma general es simplemente escribir los millares, seguidos de «mil», más el número de tres cifras 
-                // que siga, excepto si la cifra de millares es 1. En este caso se omiten los millares, 
-                //escribiendo solo "mil" en lugar de "un mil"
-                if (millares.Quotient > 1)
-                {
-                    AddClase(sb, millares.Quotient, nperiodo, (op == OpcionesGramatica.Masculino) ? OpcionesGramatica.Apocope : op);
-                    espacio = true;
-                }
-                AddEspacioIfNecesario(sb, ref espacio);
-                sb.Append("mil");
-                espacio = true;
-
-                uniDecCenMil = millares.Remainder;
-            }
-            if (uniDecCenMil > 0)
-            {
-                AddEspacioIfNecesario(sb, ref espacio);
-                AddClase(sb, uniDecCenMil, nperiodo, op);
-            }
-
-            if (nperiodo >= 2)
-            {
-                AddEspacioIfNecesario(sb, ref espacio);
-                sb.Append(millonesStr.Value[nperiodo - 2]);
-            }
-        }
+        if (nperiodo >= 2)
+            words.AddWord(millonesStr.Value[nperiodo - 2]);
     }
 
-    private static void AddEspacioIfNecesario(StringBuilder sb, ref bool espacio)
-    {
-        if (espacio)
-        {
-            sb.Append(' ');
-            espacio = false;
-        }
-    }
-
-    private static void AddClase(StringBuilder sb, uint uniDecCen, int nperiodo, OpcionesGramatica opciones)
+    private static void AddClase(Words words, uint uniDecCen, int nperiodo, OpcionesGramatica opciones)
     {
         if (uniDecCen >= 100)
-            AddCentenas(sb, uniDecCen, nperiodo, opciones);
+            AddCentenas(words, uniDecCen, nperiodo, opciones);
         else
-            AddUnidadesYDecenas(sb, uniDecCen, nperiodo, opciones);
+            AddUnidadesYDecenas(words, uniDecCen, nperiodo, opciones);
     }
 
-    private static void AddUnidadesYDecenas(StringBuilder sb, uint unidad, int nperiodo, OpcionesGramatica opciones)
+    private static void AddUnidadesYDecenas(Words words, uint unidad, int nperiodo, OpcionesGramatica opciones)
     {
         if (unidad == 0)
             return;
@@ -214,29 +184,29 @@ public static class Numerales
 
         if (unidad == 21 && opciones != OpcionesGramatica.Masculino)
         {
-            sb.Append((opciones == OpcionesGramatica.Apocope) ? "veintiún" : "veintiuna");
+            words.AddWord((opciones == OpcionesGramatica.Apocope) ? "veintiún" : "veintiuna");
         }
         else if (unidad < unidadesStrTmp.Length)
         {
-            sb.Append(unidadesStrTmp[unidad]);
+            words.AddWord(unidadesStrTmp[unidad]);
             if (unidad == 1)
-                AddGenero(sb, opciones, true, false);
+                AddGenero(words, opciones, true, false);
         }
         else if (unidad < 100)
         {
             var decenas = Math.DivRem(unidad, 10);
 
-            sb.Append(decenasStr.Value[decenas.Quotient]);
+            words.AddWord(decenasStr.Value[decenas.Quotient]);
 
             if (decenas.Remainder != 0)
             {
-                sb.Append(" y ");
-                AddUnidadesYDecenas(sb, decenas.Remainder, nperiodo, opciones);
+                words.AddWord("y");
+                AddUnidadesYDecenas(words, decenas.Remainder, nperiodo, opciones);
             }
         }
     }
 
-    private static void AddCentenas(StringBuilder sb, uint numero, int nperiodo, OpcionesGramatica opciones)
+    private static void AddCentenas(Words words, uint numero, int nperiodo, OpcionesGramatica opciones)
     {
         switch (numero)
         {
@@ -244,7 +214,7 @@ public static class Numerales
                 break;
             case 100:
                 // La centena se expresa como «cien» si va sola y como «ciento» si va acompañada de decenas o unidades
-                sb.Append("cien");
+                words.AddWord("cien");
                 break;
             default:
                 if (numero > 999)
@@ -252,21 +222,18 @@ public static class Numerales
 
                 var centenas = Math.DivRem(numero, 100);
 
-                sb.Append(centenasStr.Value[centenas.Quotient]);
+                words.AddWord(centenasStr.Value[centenas.Quotient]);
                 // La centena se expresa como «ciento» si va acompañada de decenas o unidades
                 // Para expresar varias centenas, se usa el plural «cientos», uniéndose esta palabra al número que está multiplicando a «cien», aunque pueden surgir irregularidades en dicho número o en la palabra entera.
                 if (centenas.Quotient > 1)
-                    AddGenero(sb, opciones, false, true);
+                    AddGenero(words, opciones, false, true);
                 if (centenas.Remainder > 0)
-                {
-                    sb.Append(' ');
-                    AddUnidadesYDecenas(sb, centenas.Remainder, nperiodo, opciones);
-                }
+                    AddUnidadesYDecenas(words, centenas.Remainder, nperiodo, opciones);
                 break;
         }
     }
 
-    private static void AddGenero(StringBuilder sb, OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)
+    private static void AddGenero(Words words, OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)
     {
         if (!sePuedeApocopar)
         {
@@ -277,10 +244,10 @@ public static class Numerales
         switch (opciones)
         {
             case OpcionesGramatica.Masculino:
-                sb.Append(!plurar ? "o" : "os");
+                words.AddCaracters(!plurar ? "o" : "os");
                 break;
             case OpcionesGramatica.Fenemino:
-                sb.Append(!plurar ? "a" : "as");
+                words.AddCaracters(!plurar ? "a" : "as");
                 break;
         }
     }

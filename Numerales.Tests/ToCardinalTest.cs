@@ -19,6 +19,13 @@ public class ToCardinalTest
         Debug.Assert(str == "menos uno", str);
     }
     [TestMethod]
+    public void TestCero()
+    {
+        var str = ToCardinal(0, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "cero");
+    }
+    [TestMethod]
     public void TestUno()
     {
         var str = ToCardinal(1, OpcionesGramatica.Masculino);
@@ -186,6 +193,13 @@ public class ToCardinalTest
 
             Debug.Assert(str == millar.Value, str);
         }
+    }
+    [TestMethod]
+    public void TestMillones()
+    {
+        var str = ToCardinal(1000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "un millón", str);
     }
 
     [TestMethod]
