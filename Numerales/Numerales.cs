@@ -110,7 +110,8 @@ public static class Numerales
                 numero = numero % millonUInt;
             }
 
-            AddPeriodo(words, 1, numero, opciones);
+            if (numero > 0)
+                AddPeriodo(words, 1, numero, opciones);
         }
 
         return words.ToString();
@@ -190,7 +191,7 @@ public static class Numerales
         {
             words.AddWord(unidadesStrTmp[unidad]);
             if (unidad == 1)
-                AddGenero(words, opciones, true, false);
+                words.AddGenero(opciones, true, false);
         }
         else if (unidad < 100)
         {
@@ -226,28 +227,9 @@ public static class Numerales
                 // La centena se expresa como «ciento» si va acompañada de decenas o unidades
                 // Para expresar varias centenas, se usa el plural «cientos», uniéndose esta palabra al número que está multiplicando a «cien», aunque pueden surgir irregularidades en dicho número o en la palabra entera.
                 if (centenas.Quotient > 1)
-                    AddGenero(words, opciones, false, true);
+                    words.AddGenero(opciones, false, true);
                 if (centenas.Remainder > 0)
                     AddUnidadesYDecenas(words, centenas.Remainder, nperiodo, opciones);
-                break;
-        }
-    }
-
-    private static void AddGenero(Words words, OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)
-    {
-        if (!sePuedeApocopar)
-        {
-            if (opciones == OpcionesGramatica.Apocope)
-                opciones = OpcionesGramatica.Masculino;
-
-        }
-        switch (opciones)
-        {
-            case OpcionesGramatica.Masculino:
-                words.AddCaracters(!plurar ? "o" : "os");
-                break;
-            case OpcionesGramatica.Fenemino:
-                words.AddCaracters(!plurar ? "a" : "as");
                 break;
         }
     }

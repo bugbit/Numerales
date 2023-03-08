@@ -33,4 +33,18 @@ Los múltiplos de un millón siempre son masculinos: se dice «quinientos millon
 
 De nuevo, se debe separar la parte entera cada tres dígitos usando espacio duro en lugar de punto ‘.’.
 
-1.000.000 => un millon
+1.000.000           => un millon
+2.000.000           => dos millones
+500.000.000		    => quinientos millones
+1.000.000.000		=> mil millones (a veces «un millardo»)
+1.200.000.000		=> mil doscientos millones
+5.000.000.000		=> cinco mil millones
+1.000.000.000.000   => un billón
+
+## Referencia:
+
+<ul>
+    <li>https://es.wikipedia.org/wiki/Anexo:Nombres_de_los_n%C3%BAmeros_en_espa%C3%B1ol</li>
+    <li>https://es.wikipedia.org/wiki/Escalas_num%C3%A9ricas_larga_y_corta</li>
+    <li>http://www.reglasdeortografia.com/numerales.html</li>
+</ul>

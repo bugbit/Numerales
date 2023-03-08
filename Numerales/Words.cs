@@ -20,7 +20,26 @@ public class Words
                 sb.Append(' ');
         }
         AddCaracters(word);
-    }    
+    }
+
+    public void AddGenero(OpcionesGramatica opciones, bool sePuedeApocopar, bool plurar)
+    {
+        if (!sePuedeApocopar)
+        {
+            if (opciones == OpcionesGramatica.Apocope)
+                opciones = OpcionesGramatica.Masculino;
+
+        }
+        switch (opciones)
+        {
+            case OpcionesGramatica.Masculino:
+                AddCaracters(!plurar ? "o" : "os");
+                break;
+            case OpcionesGramatica.Fenemino:
+                AddCaracters(!plurar ? "a" : "as");
+                break;
+        }
+    }
 
     public override string ToString() => sb.ToString();
 }
