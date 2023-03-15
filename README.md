@@ -33,13 +33,16 @@ Los múltiplos de un millón siempre son masculinos: se dice «quinientos millon
 
 De nuevo, se debe separar la parte entera cada tres dígitos usando espacio duro en lugar de punto ‘.’.
 
-1.000.000           => un millon
-2.000.000           => dos millones
-500.000.000		    => quinientos millones
-1.000.000.000		=> mil millones (a veces «un millardo»)
-1.200.000.000		=> mil doscientos millones
-5.000.000.000		=> cinco mil millones
-1.000.000.000.000   => un billón
+1.000.000                   => un millon
+2.000.000                   => dos millones
+500.000.000		            => quinientos millones
+1.000.000.000		        => mil millones (a veces «un millardo»)
+1.200.000.000		        => mil doscientos millones
+5.000.000.000		        => cinco mil millones
+1.000.000.000.000           => un billón
+1.000.000.000.000.000       => mil billones
+0.932.384.626.433.832.795   => novecientos treinta y dos mil trescientos ochenta y cuatro billones seiscientos veintiséis mil cuatrocientos treinta y tres millones ochocientos treinta y dos mil setecientos noventa y cinco
+1.000.000.000.000.000.000   => un trillón
 
 ## Referencia:
 

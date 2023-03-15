@@ -200,6 +200,42 @@ public class ToCardinalTest
         var str = ToCardinal(1000000, OpcionesGramatica.Masculino);
 
         Debug.Assert(str == "un millón", str);
+
+        str = ToCardinal(2000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "dos millones", str);
+
+        str = ToCardinal(500000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "quinientos millones", str);
+
+        str = ToCardinal(1000000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "mil millones", str);
+
+        str = ToCardinal(1200000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "mil doscientos millones", str);
+
+        str = ToCardinal(5000000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "cinco mil millones", str);
+
+        str = ToCardinal(1000000000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "un billón", str);
+
+        str = ToCardinal(1000000000000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "mil billones", str);
+
+        str = ToCardinal(932384626433832795, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "novecientos treinta y dos mil trescientos ochenta y cuatro billones seiscientos veintiséis mil cuatrocientos treinta y tres millones ochocientos treinta y dos mil setecientos noventa y cinco", str);
+
+        str = ToCardinal(1000000000000000000, OpcionesGramatica.Masculino);
+
+        Debug.Assert(str == "un trillón", str);
     }
 
     [TestMethod]

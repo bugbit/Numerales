@@ -11,8 +11,9 @@ namespace Numerales;
 public static class Numerales
 {
     private const uint millonUInt = 1000000u;
-    //private const ulong billonUInt = (ulong)millonUInt * millonUInt;
-    //private const ulong trillonUInt = billonUInt * millonUInt;
+    private const ulong billonUInt = (ulong)millonUInt * millonUInt;
+    private const ulong trillonUInt = billonUInt * millonUInt;
+    private static readonly ulong[] millonsULong = { trillonUInt, billonUInt, millonUInt };
     //private const ulong cuatrillonUInt = (ulong)trillonUInt * millonUInt;
     private static readonly Lazy<string[]> unidadesStr = new(() =>
     new[]
@@ -37,7 +38,7 @@ public static class Numerales
     private static readonly Lazy<string[]> millonesStr = new(() =>
     new[]
     {
-        "millón","billón"
+        "mill","bill","trill"
     });
 
 
@@ -119,11 +120,33 @@ public static class Numerales
 
     private static string ToCardinal(bool negative, ulong numero, OpcionesGramatica opciones)
     {
-        var periodes = new List<uint>();
+        var words = new Words();
 
-        AddPeriodos(periodes, numero);
+        if (numero == 0)
+            AddZero(words);
+        else
+        {
+            AddIfNegative(negative, words);
 
-        return string.Empty;
+            int nperiodo = millonsULong.Length + 1;
+
+            foreach (var partMillon in millonsULong)
+            {
+                var part = numero / partMillon;
+
+                if (part > 0)
+                {
+                    AddPeriodo(words, nperiodo, (uint)part, opciones);
+                    numero = numero % partMillon;
+                }
+                nperiodo--;
+            }
+
+            if (numero > 0)
+                AddPeriodo(words, nperiodo, (uint)numero, opciones);
+        }
+
+        return words.ToString();
     }
 
     private static void AddIfNegative(bool negative, Words words)
@@ -147,6 +170,7 @@ public static class Numerales
 
         // Los múltiplos de un millón siempre son masculinos: se dice «quinientos millones de personas»
         var op = nperiodo > 1 ? OpcionesGramatica.Apocope : opciones;
+        var plural = uniDecCenMil > 1;
 
         if (uniDecCenMil > 999)
         {
@@ -165,7 +189,10 @@ public static class Numerales
             AddClase(words, uniDecCenMil, nperiodo, op);
 
         if (nperiodo >= 2)
+        {
             words.AddWord(millonesStr.Value[nperiodo - 2]);
+            words.AddCaracters(plural ? "ones" : "ón");
+        }
     }
 
     private static void AddClase(Words words, uint uniDecCen, int nperiodo, OpcionesGramatica opciones)
